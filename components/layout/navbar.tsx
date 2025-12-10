@@ -61,13 +61,13 @@ function Navbar() {
                                     </SheetHeader>
 
                                     <Link href="/auth/sign-in">
-                                        <Button variant="ghost" className="justify-start w-full">
+                                        <Button variant="ghost" className="justify-start w-full cursor-pointer">
                                             Sign In
                                         </Button>
                                     </Link>
 
                                     <Link href="/auth/signup">
-                                        <Button className="justify-start w-full">
+                                        <Button className="justify-start w-full cursor-pointer">
                                             Sign Up
                                         </Button>
                                     </Link>
