@@ -27,7 +27,7 @@ function CTA() {
         "
       >
         Start building your resume now -  
-        <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-bold  border-b
+        <span className="bg-linear-to-r from-primary to-accent bg-clip-text text-transparent font-bold  border-b
         lg:border-none
         border-accent pb-1">
            it's free
