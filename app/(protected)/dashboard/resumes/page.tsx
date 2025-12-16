@@ -3,6 +3,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import React from 'react'
 
 import { Plus } from "lucide-react"
+import Link from 'next/link'
 
 function Resumes() {
   return (
@@ -25,13 +26,15 @@ function Resumes() {
       <div className="fixed bottom-6 left-6 z-50">
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button
-              className="bg-primary text-white hover:bg-primary/80 transition font-bold
+            <Link href="/dashboard/create-resume">
+              <Button
+                className="bg-primary text-white hover:bg-primary/80 transition font-bold
                    rounded-full h-12 w-12 p-0 flex items-center justify-center
                    hover:scale-105 shadow-lg cursor-pointer"
-            >
-              <Plus className='h-6 w-6'/>
-            </Button>
+              >
+                <Plus className='h-6 w-6' />
+              </Button>
+            </Link>
           </TooltipTrigger>
           <TooltipContent side="right">
             <p>Create New Resume</p>
