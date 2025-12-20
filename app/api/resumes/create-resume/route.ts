@@ -28,7 +28,7 @@ export async function POST() {
     } catch (error) {
         console.log(error)
         return NextResponse.json(
-            { error: 'Resume limit reached' },
+            { error: 'Cannot Create Resume' },
             { status: 403 }
         )
 

@@ -7,13 +7,20 @@ import axios from 'axios'
 import { useRouter } from 'next/navigation'
 import { Plus } from "lucide-react"
 import { toast } from 'sonner'
-
+import { Spinner } from '@/components/ui/spinner'
+import ResumeCard from '@/components/dashboard/resumeCard'
 function Resumes() {
   const [creating, setCreating] = React.useState(false)
   const [resumeId, setResumeId] = React.useState<string | null>(null)
   const [showTitleModal, setShowTitleModal] = React.useState(false)
   const [title, setTitle] = React.useState('')
+  const [loadingResumes, setLoadingResumes] = React.useState(false)
+  const [error, setError] = React.useState<string | null>(null)
   const router = useRouter()
+
+  const [userResume, setUserResume] = React.useState<Array<any>>([])
+
+
   const createResume = async () => {
     setCreating(true)
     try {
@@ -21,9 +28,8 @@ function Resumes() {
       const { id } = res.data.data
       setResumeId(id)
       setShowTitleModal(true)
-    } catch (err:any) {
+    } catch (err: any) {
       console.log(err);
-      
       toast.error('Failed to create resume:')
     } finally {
       setCreating(false)
@@ -43,6 +49,26 @@ function Resumes() {
     router.push(`/dashboard/resume/${resumeId}/edit`)
   }
 
+
+  useEffect(() => {
+    const fetchUserResumes = async () => {
+      setLoadingResumes(true)
+      try {
+        const res = await axios.get('/api/resumes/get-user-resumes')
+        setUserResume(res.data.resumes)
+        setLoadingResumes(false)
+      } catch (err) {
+        console.log(err);
+        
+        setError('Failed to fetch resumes')
+        toast.error('Failed To fetch resumes')
+      } finally {
+        setLoadingResumes(false)
+      }
+    }
+
+    fetchUserResumes()
+  }, [])
   return (
     <>
       <div className='flex flex-col min-h-screen max-w-[1200px] m-auto justify-start items-center'>
@@ -51,12 +77,21 @@ function Resumes() {
         </div>
 
         <div className='flex flex-col sm:flex-row flex-wrap gap-4 m-2 overflow-auto w-full justify-center items-center'>
-          {/* Resume list will go here */}
-          This is where resumes will go
+          {
+            loadingResumes ? (
+              <Spinner />
+            ) : error ? (
+              <p className='text-red-500'>{error}</p>
+            ) : userResume.length === 0 ? (
+              <p className='text-muted-foreground'>You have no resumes yet. Click the + button to create one.</p>
+            ) : (
+              userResume.map((resume) => (
+                <ResumeCard key={resume.id} {...resume}/>
+              ))
+            )
+
+          }
         </div>
-
-
-
 
       </div>
 
@@ -71,7 +106,9 @@ function Resumes() {
               onClick={createResume}
               disabled={creating}
             >
-              <Plus className='h-6 w-6' />
+              {
+                creating ? <Spinner/> : <Plus className='h-6 w-6' />
+              }
             </Button>
           </TooltipTrigger>
           <TooltipContent side="right">
