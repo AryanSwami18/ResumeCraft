@@ -1,5 +1,4 @@
 "use client"
-
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import React, { useEffect } from 'react'
@@ -42,7 +41,7 @@ function Resumes() {
       return
     }
 
-    await axios.patch(`/api/resumes/${resumeId}`, {
+    await axios.patch(`/api/resumes/update-title/${resumeId}`, {
       title,
     })
 
