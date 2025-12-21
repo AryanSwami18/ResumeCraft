@@ -24,6 +24,7 @@ function Resumes() {
     setResumes,
     setLoading,
     setError,
+    updateTitle
   } = useResumeStore()
 
   //  Local UI-only state 
@@ -31,7 +32,7 @@ function Resumes() {
   const [resumeId, setResumeId] = React.useState<string | null>(null)
   const [showTitleModal, setShowTitleModal] = React.useState(false)
   const [title, setTitle] = React.useState("")
-
+  const [titleUpdating, setTitleUpdating] = React.useState(false)
   //  Create resume 
   const createResume = async () => {
     setCreating(true)
@@ -47,18 +48,26 @@ function Resumes() {
       setCreating(false)
     }
   }
-
-  const saveTitleAndContinue = async () => {
-    if (!title.trim() || !resumeId) {
-      toast.error("Title is required")
-      return
-    }
-
-    await axios.patch(`/api/resumes/update-title/${resumeId}`, { title })
-    router.push(`/dashboard/resume/${resumeId}/edit`)
+const saveTitleAndContinue = async () => {
+  if (!title.trim() || !resumeId) {
+    toast.error("Title is required")
+    return
   }
+  try {
+    setTitleUpdating(true)
+    await axios.patch(`/api/resumes/${resumeId}`, { title })
+    updateTitle(resumeId, title)
+    setShowTitleModal(false)
+    router.push(`/dashboard/resume/${resumeId}/edit`)
+  } catch (error) {
+    console.error(error)
+    toast.error("Failed to update title")
+  } finally {
+    setTitleUpdating(false)
+  }
+}
 
-  //  Fetch resumes ONCE → store in Zustand
+  //  Fetch resumes  → store in Zustand
   useEffect(() => {
     const fetchUserResumes = async () => {
       setLoading(true)
@@ -137,7 +146,10 @@ function Resumes() {
                 placeholder="My Resume"
               />
 
-              <Button onClick={saveTitleAndContinue}>Next</Button>
+              <Button onClick={saveTitleAndContinue}
+                disabled={titleUpdating}>
+                {titleUpdating ? <Spinner /> : "Save and Continue"}
+              </Button>
             </div>
           </div>
         )}
