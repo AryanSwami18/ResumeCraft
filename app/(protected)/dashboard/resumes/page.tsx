@@ -24,7 +24,7 @@ function Resumes() {
     setResumes,
     setLoading,
     setError,
-    updateTitle
+    updateTitle, reset
   } = useResumeStore()
 
   //  Local UI-only state 
@@ -48,24 +48,24 @@ function Resumes() {
       setCreating(false)
     }
   }
-const saveTitleAndContinue = async () => {
-  if (!title.trim() || !resumeId) {
-    toast.error("Title is required")
-    return
+  const saveTitleAndContinue = async () => {
+    if (!title.trim() || !resumeId) {
+      toast.error("Title is required")
+      return
+    }
+    try {
+      setTitleUpdating(true)
+      await axios.patch(`/api/resumes/${resumeId}`, { title })
+      updateTitle(resumeId, title)
+      setShowTitleModal(false)
+      router.push(`/dashboard/edit-resume/${resumeId}`)
+    } catch (error) {
+      console.error(error)
+      toast.error("Failed to update title")
+    } finally {
+      setTitleUpdating(false)
+    }
   }
-  try {
-    setTitleUpdating(true)
-    await axios.patch(`/api/resumes/${resumeId}`, { title })
-    updateTitle(resumeId, title)
-    setShowTitleModal(false)
-    router.push(`/dashboard/resume/${resumeId}/edit`)
-  } catch (error) {
-    console.error(error)
-    toast.error("Failed to update title")
-  } finally {
-    setTitleUpdating(false)
-  }
-}
 
   //  Fetch resumes  → store in Zustand
   useEffect(() => {
@@ -86,6 +86,10 @@ const saveTitleAndContinue = async () => {
     }
 
     fetchUserResumes()
+
+    return () => {
+      reset()
+    }
   }, [setResumes, setLoading, setError])
 
   return (
@@ -97,7 +101,7 @@ const saveTitleAndContinue = async () => {
           </h1>
         </div>
 
-        <div className="flex flex-col sm:flex-row flex-wrap gap-4 m-2 w-full justify-center items-center">
+        <div className="flex flex-col sm:flex-row flex-wrap gap-4 m-2 w-full justify-center items-center cursor-pointer">
           {isLoading ? (
             <Spinner />
           ) : error ? (

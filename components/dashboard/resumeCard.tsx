@@ -26,6 +26,7 @@ import {
 import axios from "axios"
 import { useResumeStore } from "@/store/resume"
 import { toast } from "sonner"
+import { useRouter } from "next/navigation"
 
 type ResumeCardProp = {
   title: string
@@ -34,9 +35,11 @@ type ResumeCardProp = {
 }
 
 export default function ResumeCard(resume: ResumeCardProp) {
+  const router = useRouter()
   const [showDeleteDialog, setShowDeleteDialog] = React.useState(false)
   const [isDeleting, setIsDeleting] = React.useState(false)
   const { removeResume } = useResumeStore()
+ 
   const handleDelete = async () => {
     try {
       setIsDeleting(true)
@@ -51,9 +54,13 @@ export default function ResumeCard(resume: ResumeCardProp) {
     }
   }
 
+  const navigateToEdit = ()=>{
+    router.push(`edit-resume/${resume.id}`)
+  }
+
   return (
     <>
-      <Card className="hover:border-accent/80 transition-border duration-200">
+      <Card className="hover:border-accent/80 transition-border duration-200" onClick={navigateToEdit}>
         <CardHeader>{resume.title}</CardHeader>
 
         <CardContent>

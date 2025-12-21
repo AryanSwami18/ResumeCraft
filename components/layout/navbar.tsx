@@ -17,8 +17,8 @@ function Navbar() {
     const { isSignedIn } = useAuth()
 
     return (
-        <div className=" w-full border-b border-border bg-background">
-            <div className="mx-auto flex w-full max-w-[1200px] items-center justify-between px-4 py-3 md:py-4">
+        <div className="  border-b border-border bg-background  ">
+            <div className="mx-auto flex max-w-[1200px] items-center justify-between px-4 py-3 md:py-4">
                 {/* Logo */}
                 <Link href="/" className="text-xl font-semibold">
                     <span className="text-accent">Resume</span>

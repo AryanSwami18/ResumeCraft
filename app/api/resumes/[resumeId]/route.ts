@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import prisma from "@/lib/prisma"
 import { getUserId } from "@/lib/auth"
-import {ResumeUpdateSchema} from "@/lib/validators/resume"
+import { ResumeUpdateSchema } from "@/lib/validators/resume"
 export async function DELETE(
   req: NextRequest,
   context: { params: Promise<{ resumeId: string }> }
@@ -102,6 +102,53 @@ export async function PATCH(req: NextRequest,
     console.error(error)
     return NextResponse.json(
       { error: "Failed to update resume" },
+      { status: 500 }
+    )
+  }
+}
+
+
+export async function GET(req: NextRequest, context: { params: Promise<{ resumeId: string }> }) {
+  try {
+    const userId = await getUserId()
+
+    const { resumeId } = await context.params
+
+    const resume = await prisma.resume.findFirst({
+      where: {
+        clerkUserId: userId,
+        id: resumeId
+      }
+    })
+
+    
+    
+
+    if (!resume) {
+      return NextResponse.json(
+        {
+          error: "Unauthorized request or resume dosent exist",
+          success: false
+        },
+        {
+          status: 404
+        }
+      )
+    }
+
+    return NextResponse.json(
+      {
+        message: "Resume Fetched SuccessFully",
+        resume: resume
+      },
+      {
+        status: 200
+      }
+    )
+  } catch (error) {
+    console.error(error)
+    return NextResponse.json(
+      { error: "Failed to fetch resume" },
       { status: 500 }
     )
   }
