@@ -24,6 +24,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import axios from "axios"
+import { useResumeStore } from "@/store/resume"
+import { toast } from "sonner"
 
 type ResumeCardProp = {
   title: string
@@ -34,13 +36,14 @@ type ResumeCardProp = {
 export default function ResumeCard(resume: ResumeCardProp) {
   const [showDeleteDialog, setShowDeleteDialog] = React.useState(false)
   const [isDeleting, setIsDeleting] = React.useState(false)
-
+  const { removeResume } = useResumeStore()
   const handleDelete = async () => {
     try {
       setIsDeleting(true)
       await axios.delete(`/api/resumes/${resume.id}`)
+      removeResume(resume.id)
       setShowDeleteDialog(false)
-      // TODO:remove from Zustand
+      toast.success("Resume deleted successfully")
     } catch (err) {
       console.error(err)
     } finally {

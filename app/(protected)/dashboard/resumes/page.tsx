@@ -1,35 +1,48 @@
 "use client"
-import { Button } from '@/components/ui/button'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import React, { useEffect } from 'react'
-import axios from 'axios'
-import { useRouter } from 'next/navigation'
+
+import React, { useEffect } from "react"
+import axios from "axios"
+import { useRouter } from "next/navigation"
 import { Plus } from "lucide-react"
-import { toast } from 'sonner'
-import { Spinner } from '@/components/ui/spinner'
-import ResumeCard from '@/components/dashboard/resumeCard'
+import { toast } from "sonner"
+
+import { Button } from "@/components/ui/button"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { Spinner } from "@/components/ui/spinner"
+import ResumeCard from "@/components/dashboard/resumeCard"
+
+import { useResumeStore } from "@/store/resume"
+
 function Resumes() {
+  const router = useRouter()
+
+  //  Zustand store
+  const {
+    resumes,
+    isLoading,
+    error,
+    setResumes,
+    setLoading,
+    setError,
+  } = useResumeStore()
+
+  //  Local UI-only state 
   const [creating, setCreating] = React.useState(false)
   const [resumeId, setResumeId] = React.useState<string | null>(null)
   const [showTitleModal, setShowTitleModal] = React.useState(false)
-  const [title, setTitle] = React.useState('')
-  const [loadingResumes, setLoadingResumes] = React.useState(false)
-  const [error, setError] = React.useState<string | null>(null)
-  const router = useRouter()
+  const [title, setTitle] = React.useState("")
 
-  const [userResume, setUserResume] = React.useState<Array<any>>([])
-
-
+  //  Create resume 
   const createResume = async () => {
     setCreating(true)
     try {
-      const res = await axios.post('/api/resumes/create-resume')
+      const res = await axios.post("/api/resumes/create-resume")
       const { id } = res.data.data
       setResumeId(id)
       setShowTitleModal(true)
-    } catch (err: any) {
-      console.log(err);
-      toast.error('Failed to create resume:')
+    } catch (err) {
+      console.error(err)
+      toast.error("Failed to create resume")
     } finally {
       setCreating(false)
     }
@@ -37,77 +50,73 @@ function Resumes() {
 
   const saveTitleAndContinue = async () => {
     if (!title.trim() || !resumeId) {
-      toast.error('Title is required')
+      toast.error("Title is required")
       return
     }
 
-    await axios.patch(`/api/resumes/update-title/${resumeId}`, {
-      title,
-    })
-
+    await axios.patch(`/api/resumes/update-title/${resumeId}`, { title })
     router.push(`/dashboard/resume/${resumeId}/edit`)
   }
 
-
+  //  Fetch resumes ONCE → store in Zustand
   useEffect(() => {
     const fetchUserResumes = async () => {
-      setLoadingResumes(true)
+      setLoading(true)
+      setError(null)
+
       try {
-        const res = await axios.get('/api/resumes/get-user-resumes')
-        setUserResume(res.data.resumes)
-        setLoadingResumes(false)
+        const res = await axios.get("/api/resumes/get-user-resumes")
+        setResumes(res.data.resumes)
       } catch (err) {
-        console.log(err);
-        
-        setError('Failed to fetch resumes')
-        toast.error('Failed To fetch resumes')
+        console.error(err)
+        setError("Failed to fetch resumes")
+        toast.error("Failed to fetch resumes")
       } finally {
-        setLoadingResumes(false)
+        setLoading(false)
       }
     }
 
     fetchUserResumes()
-  }, [])
+  }, [setResumes, setLoading, setError])
+
   return (
     <>
-      <div className='flex flex-col min-h-screen max-w-[1200px] m-auto justify-start items-center'>
-        <div className='flex flex-col sm:flex-row gap-4 justify-between items-start mt-10 w-full px-4'>
-          <h1 className='text-xl font-medium text-muted-foreground border-b '>Your Resumes</h1>
+      <div className="flex flex-col min-h-screen max-w-[1200px] m-auto justify-start items-center">
+        <div className="flex flex-col sm:flex-row gap-4 justify-between items-start mt-10 w-full px-4">
+          <h1 className="text-xl font-medium text-muted-foreground border-b">
+            Your Resumes
+          </h1>
         </div>
 
-        <div className='flex flex-col sm:flex-row flex-wrap gap-4 m-2 overflow-auto w-full justify-center items-center'>
-          {
-            loadingResumes ? (
-              <Spinner />
-            ) : error ? (
-              <p className='text-red-500'>{error}</p>
-            ) : userResume.length === 0 ? (
-              <p className='text-muted-foreground'>You have no resumes yet. Click the + button to create one.</p>
-            ) : (
-              userResume.map((resume) => (
-                <ResumeCard key={resume.id} {...resume}/>
-              ))
-            )
-
-          }
+        <div className="flex flex-col sm:flex-row flex-wrap gap-4 m-2 w-full justify-center items-center">
+          {isLoading ? (
+            <Spinner />
+          ) : error ? (
+            <p className="text-red-500">{error}</p>
+          ) : resumes.length === 0 ? (
+            <p className="text-muted-foreground">
+              You have no resumes yet. Click the + button to create one.
+            </p>
+          ) : (
+            resumes.map((resume) => (
+              <ResumeCard key={resume.id} {...resume} />
+            ))
+          )}
         </div>
-
       </div>
 
+      {/* Floating create button */}
       <div className="fixed bottom-6 left-6 z-50">
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
               className="bg-primary text-white hover:bg-primary/80 transition font-bold
-                   rounded-full h-12 w-12 p-0 flex items-center justify-center
-                   hover:scale-105 shadow-lg cursor-pointer"
-
+                         rounded-full h-12 w-12 p-0 flex items-center justify-center
+                         hover:scale-105 shadow-lg cursor-pointer"
               onClick={createResume}
               disabled={creating}
             >
-              {
-                creating ? <Spinner/> : <Plus className='h-6 w-6' />
-              }
+              {creating ? <Spinner /> : <Plus className="h-6 w-6" />}
             </Button>
           </TooltipTrigger>
           <TooltipContent side="right">
@@ -115,6 +124,7 @@ function Resumes() {
           </TooltipContent>
         </Tooltip>
 
+        {/* Title modal */}
         {showTitleModal && (
           <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
             <div className="bg-background p-6 rounded-xl w-96 space-y-4">
@@ -127,9 +137,7 @@ function Resumes() {
                 placeholder="My Resume"
               />
 
-              <Button onClick={saveTitleAndContinue}>
-                Next
-              </Button>
+              <Button onClick={saveTitleAndContinue}>Next</Button>
             </div>
           </div>
         )}

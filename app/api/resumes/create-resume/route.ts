@@ -7,6 +7,13 @@ export async function POST() {
     try {
         const userId = await getUserId()
 
+
+        if (!userId) {
+            return NextResponse.json(
+                { success: false, message: "Unauthorized" },
+                { status: 401 }
+            )
+        }
         const resume = await prisma.resume.create({
             data: {
                 clerkUserId: userId,
