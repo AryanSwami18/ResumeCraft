@@ -60,8 +60,8 @@ export default function ResumeCard(resume: ResumeCardProp) {
 
   return (
     <>
-      <Card className="hover:border-accent/80 transition-border duration-200" onClick={navigateToEdit}>
-        <CardHeader>{resume.title}</CardHeader>
+      <Card className="hover:border-accent/80 transition-border duration-200 min-h-[200px]" onClick={navigateToEdit}>
+        <CardHeader className="min-h-[100px]">{resume.title}</CardHeader>
 
         <CardContent>
           <div className="flex items-center justify-between">

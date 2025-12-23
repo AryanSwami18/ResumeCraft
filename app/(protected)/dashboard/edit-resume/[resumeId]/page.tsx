@@ -3,19 +3,21 @@
 import React, { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Download } from "lucide-react"
+import { ArrowLeft, Download,SquareCheck,SquareCheckBig } from "lucide-react"
 import axios from "axios"
 import { toast } from "sonner"
 import { useResumeEditorStore } from "@/store/editResumeStore"
 import { Spinner } from "@/components/ui/spinner"
+import { Input } from "@/components/ui/input"
+import { diffResume } from "@/lib/utils/diffResume"
 
 function EditResume() {
   const params = useParams<{ resumeId: string }>()
   const resumeId = params.resumeId
-
-  const { initialize, reset } = useResumeEditorStore()
+  const { current, lastSaved, isInitialized, setSaving, markSaved, setError, initialize, reset, updateField, replaceSection,isSaving } = useResumeEditorStore()
   const [loading, setLoading] = useState(true)
   const [resumeLoadingError, setResumeLoadingError] = useState(false)
+
 
   useEffect(() => {
     let isMounted = true
@@ -51,6 +53,33 @@ function EditResume() {
     }
   }, [resumeId, initialize, reset])
 
+  useEffect(() => {
+    if (!current || !lastSaved || !isInitialized) return
+
+    const changes = diffResume(current, lastSaved)
+
+    if (Object.keys(changes).length === 0) return
+
+    const timeout = setTimeout(async () => {
+      try {
+        setSaving(true)
+
+        await axios.patch(`/api/resumes/${current.id}`, changes)
+
+
+        markSaved()
+      } catch (error) {
+        console.error(error)
+        setError("Failed to autosave resume")
+      } finally {
+        setSaving(false)
+      }
+    }, 800)
+
+    return () => clearTimeout(timeout)
+  }, [current, lastSaved, isInitialized])
+
+
   if (loading) {
     return (
       <div className="h-screen flex items-center justify-center">
@@ -84,7 +113,7 @@ function EditResume() {
             </Link>
 
             <span className="text-sm text-muted-foreground">
-              Editing resume
+              {isSaving ? <Spinner /> : 'Synced'}
             </span>
           </div>
 
@@ -102,12 +131,34 @@ function EditResume() {
           {/* Editor */}
           <div className="w-full md:w-[60%]">
             <div className="space-y-6">
+              <Input
+                value={current?.title}
+                placeholder="Untitled resume"
+                name="title"
+                onChange={(e) => updateField("title", e.target.value)}
+                className="
+                            w-full
+                            border-0
+                            border-b
+                            border-border
+                            bg-transparent
+                            px-2
+                            py-2
+                            text-2xl
+                            font-semibold
+                            tracking-tight
+                            focus-visible:ring-0
+                            focus-visible:border-primary
+                            placeholder:text-muted-foreground
+                            transition-colors   
+                          "
+              />
               <div className="rounded-lg border p-4 text-muted-foreground">
-                Resume editor sections go here
+
               </div>
 
               <div className="rounded-lg border p-4 text-muted-foreground">
-                Experience / Education / Skills
+
               </div>
             </div>
           </div>
