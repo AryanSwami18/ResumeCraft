@@ -3,18 +3,25 @@
 import React, { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Download,SquareCheck,SquareCheckBig } from "lucide-react"
+import { ArrowLeft, Download, SquareCheck, SquareCheckBig } from "lucide-react"
 import axios from "axios"
 import { toast } from "sonner"
 import { useResumeEditorStore } from "@/store/editResumeStore"
 import { Spinner } from "@/components/ui/spinner"
 import { Input } from "@/components/ui/input"
 import { diffResume } from "@/lib/utils/diffResume"
+import { ExperienceSection } from "@/components/editor/ExperienceSection"
+import { PersonalSection } from "@/components/editor/PersonalSection"
+import { SkillsSection } from "@/components/editor/SkillsSection"
+import { ProjectsSection } from "@/components/editor/ProjectSection"
+import { EducationSection } from "@/components/editor/EducationSection"
+import { CertificationsSection } from "@/components/editor/CertificationSection"
+import { HobbiesSection } from "@/components/editor/HobbiesSection"
 
 function EditResume() {
   const params = useParams<{ resumeId: string }>()
   const resumeId = params.resumeId
-  const { current, lastSaved, isInitialized, setSaving, markSaved, setError, initialize, reset, updateField, replaceSection,isSaving } = useResumeEditorStore()
+  const { current, lastSaved, isInitialized, setSaving, markSaved, setError, initialize, reset, updateField, isSaving } = useResumeEditorStore()
   const [loading, setLoading] = useState(true)
   const [resumeLoadingError, setResumeLoadingError] = useState(false)
 
@@ -153,18 +160,51 @@ function EditResume() {
                             transition-colors   
                           "
               />
+              <div className="rounded-lg border p-4 text-muted-foreground flex flex-col gap-4">
+                {/* Education Editor */}
+                <PersonalSection />
+              </div>
               <div className="rounded-lg border p-4 text-muted-foreground">
-
+                {/* Additional info editor */}
+                <SkillsSection />
               </div>
 
               <div className="rounded-lg border p-4 text-muted-foreground">
-
+                {/* Projects editor */}
+                <ProjectsSection />
               </div>
+
+              <div className="rounded-lg border p-4 text-muted-foreground">
+                {/* Experience Editor */}
+                <ExperienceSection />
+              </div>
+
+              <div className="rounded-lg border p-4 text-muted-foreground">
+                {/* Experience Editor */}
+                <EducationSection />
+              </div>
+
+              <div className="rounded-lg border p-4 text-muted-foreground">
+                {/* Experience Editor */}
+                <CertificationsSection />
+              </div>
+
+              <div className="rounded-lg border p-4 text-muted-foreground">
+                {/* Experience Editor */}
+                <HobbiesSection />
+              </div>
+
+
+
+
+
+
+
             </div>
           </div>
 
           {/* Preview */}
-          <div className="hidden md:block md:w-[40%]">
+          <div className="hidden md:block md:w-[50%]">
             <div className="sticky top-24 flex justify-center">
               <div className="h-[760px] w-[420px] rounded-md bg-white shadow-lg">
                 {/* PDF preview */}
