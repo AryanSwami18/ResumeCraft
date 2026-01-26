@@ -10,7 +10,6 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {
@@ -39,7 +38,7 @@ export default function ResumeCard(resume: ResumeCardProp) {
   const [showDeleteDialog, setShowDeleteDialog] = React.useState(false)
   const [isDeleting, setIsDeleting] = React.useState(false)
   const { removeResume } = useResumeStore()
- 
+
   const handleDelete = async () => {
     try {
       setIsDeleting(true)
@@ -54,13 +53,16 @@ export default function ResumeCard(resume: ResumeCardProp) {
     }
   }
 
-  const navigateToEdit = ()=>{
+  const navigateToEdit = () => {
     router.push(`edit-resume/${resume.id}`)
   }
 
   return (
     <>
-      <Card className="hover:border-accent/80 transition-border duration-200 min-h-[200px]" onClick={navigateToEdit}>
+      <Card
+        className="hover:border-accent/80 transition-border duration-200 min-h-[200px] cursor-pointer"
+        onClick={navigateToEdit}
+      >
         <CardHeader className="min-h-[100px]">{resume.title}</CardHeader>
 
         <CardContent>
@@ -71,7 +73,13 @@ export default function ResumeCard(resume: ResumeCardProp) {
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="p-2 rounded-full hover:bg-muted">
+                <button
+                  className="p-2 rounded-full hover:bg-muted"
+                  // 👇 THIS IS THE FIX
+                  onClick={(e) => {
+                    e.stopPropagation() // Prevents the click from reaching the Card
+                  }}
+                >
                   <MoreVertical className="h-4 w-4" />
                 </button>
               </DropdownMenuTrigger>
@@ -81,19 +89,25 @@ export default function ResumeCard(resume: ResumeCardProp) {
                 <DropdownMenuSeparator />
 
                 <DropdownMenuGroup>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={(e) => e.stopPropagation()}
+                    onSelect={(e)=>{
+                      navigateToEdit()
+                    }}
+                  >
                     Edit
-                    <DropdownMenuShortcut>⌘E</DropdownMenuShortcut>
                   </DropdownMenuItem>
 
                   <DropdownMenuItem
+                    className="text-red-600 focus:text-red-600"
                     onSelect={(e) => {
-                      e.preventDefault()
+                      e.preventDefault() // Prevents menu from closing immediately
                       setShowDeleteDialog(true)
                     }}
+                    onClick={(e) => e.stopPropagation()}
+                    
                   >
                     Delete
-                    <DropdownMenuShortcut>⌘D</DropdownMenuShortcut>
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
               </DropdownMenuContent>
@@ -102,9 +116,10 @@ export default function ResumeCard(resume: ResumeCardProp) {
         </CardContent>
       </Card>
 
-      {/* Alert Dialog OUTSIDE dropdown */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent
+          onClick={(e) => e.stopPropagation()}
+        >
           <AlertDialogHeader>
             <AlertDialogTitle>
               Are you sure you want to delete this resume?
@@ -115,11 +130,12 @@ export default function ResumeCard(resume: ResumeCardProp) {
           </AlertDialogHeader>
 
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>
-              Cancel
-            </AlertDialogCancel>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={handleDelete}
+              onClick={(e) => {
+                e.stopPropagation() 
+                handleDelete()
+              }}
               disabled={isDeleting}
               className="bg-red-600 hover:bg-red-700 text-white"
             >
