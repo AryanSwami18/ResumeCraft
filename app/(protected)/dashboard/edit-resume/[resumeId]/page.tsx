@@ -180,7 +180,7 @@ function EditResume() {
       `}</style>
 
       {/* Navbar */}
-      <nav className="h-16 border-b bg-background/95 backdrop-blur-sm flex-none z-50">
+      <nav className="h-16 border-b bg-background/95 backdrop-blur-sm flex-none z-50 shadow-sm">
         <div className="mx-auto flex h-full max-w-[1600px] items-center justify-between px-6">
           <div className="flex items-center gap-6">
             <Link href="/dashboard/resumes" className="p-2 hover:bg-accent rounded-full transition-colors text-muted-foreground hover:text-primary">

@@ -18,7 +18,7 @@ function Navbar() {
 
     return (
         <div className="  bg-background  ">
-            <div className="mx-auto flex max-w-[1200px] items-center justify-between px-4 py-3 md:py-4 border-b">
+            <div className="mx-auto flex  items-center justify-between px-4 py-3 md:py-4 border-b">
                 {/* Logo */}
                 <Link href="/" className="text-xl font-semibold">
                     <span className="text-accent">Resume</span>
