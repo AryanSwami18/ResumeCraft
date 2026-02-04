@@ -1,8 +1,9 @@
 import React from 'react'
 import { Button } from '../ui/button'
-import { Link } from 'lucide-react'
+import Link from 'next/link'
 
 function CTA() {
+
   return (
     <section
       className="
@@ -49,9 +50,7 @@ function CTA() {
 
       {/* Buttons */}
       <div className="flex flex-col sm:flex-row gap-3 mt-8">
-        <Link
-          href="/auth/sign-in"
-        >
+          <Link href="/auth/signup">
           <Button
             size="lg"
             className="
@@ -62,7 +61,7 @@ function CTA() {
           >
             Build My Resume
           </Button>
-        </Link>
+          </Link>
       </div>
     </section>
   )

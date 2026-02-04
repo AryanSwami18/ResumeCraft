@@ -7,12 +7,14 @@ import Footer from "@/components/layout/footer";
 
 export default function Home() {
   return (
+    <>
+      <Navbar />
     <div className="sm:w-full flex flex-col max-w-[1200px]  m-auto justify-center items-center gap-10">
-      <Navbar/>
       <Hero />
       <CardContainer />
       <CTA />
       <Footer/>
     </div>
+    </>
   );
 }
