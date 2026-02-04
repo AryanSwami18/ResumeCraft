@@ -4,7 +4,15 @@ import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { useResumeEditorStore } from "@/store/editResumeStore"
 
-const emptyExperience = {
+type ExperienceItem = {
+  company: string
+  role: string
+  startDate: string
+  endDate: string
+  description: string
+}
+
+const emptyExperience: ExperienceItem = {
   company: "",
   role: "",
   startDate: "",
@@ -15,7 +23,8 @@ const emptyExperience = {
 export function ExperienceSection() {
   const { current, replaceSection } = useResumeEditorStore()
 
-  const experience = current?.experience ?? []
+  const experience: ExperienceItem[] = (current?.experience ??
+    []) as ExperienceItem[]
 
   // Add new experience
   const addExperience = () => {
@@ -25,7 +34,7 @@ export function ExperienceSection() {
   // Update one field of one experience item
   const updateExperience = (
     index: number,
-    field: string,
+    field: keyof ExperienceItem,
     value: string
   ) => {
     const updated = experience.map((item, i) =>
@@ -39,7 +48,7 @@ export function ExperienceSection() {
   const deleteExperience = (index: number) => {
     replaceSection(
       "experience",
-      experience.filter((_: any, i: number) => i !== index)
+      experience.filter((_, i) => i !== index)
     )
   }
 
@@ -53,24 +62,17 @@ export function ExperienceSection() {
       </div>
 
       {experience.map((exp, index) => (
-        <div
-          key={index}
-          className="rounded-lg border p-4 space-y-3"
-        >
+        <div key={index} className="rounded-lg border p-4 space-y-3">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <Input
               placeholder="Company"
               value={exp.company}
-              onChange={(e) =>
-                updateExperience(index, "company", e.target.value)
-              }
+              onChange={(e) => updateExperience(index, "company", e.target.value)}
             />
             <Input
               placeholder="Role"
               value={exp.role}
-              onChange={(e) =>
-                updateExperience(index, "role", e.target.value)
-              }
+              onChange={(e) => updateExperience(index, "role", e.target.value)}
             />
           </div>
 
@@ -85,9 +87,7 @@ export function ExperienceSection() {
             <Input
               placeholder="End date"
               value={exp.endDate}
-              onChange={(e) =>
-                updateExperience(index, "endDate", e.target.value)
-              }
+              onChange={(e) => updateExperience(index, "endDate", e.target.value)}
             />
           </div>
 
