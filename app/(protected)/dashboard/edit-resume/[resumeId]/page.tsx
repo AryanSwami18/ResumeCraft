@@ -20,6 +20,14 @@ import { HobbiesSection } from "@/components/editor/HobbiesSection"
 // Import 'pdf' function to generate blob imperatively
 import { PDFViewer, pdf } from "@react-pdf/renderer"
 import ResumeDocument from "@/components/pdf/ResumeDocument"
+import { Button } from "@/components/ui/button"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+
 
 // --- SUB-COMPONENT: ISOLATED PREVIEW ---
 const ResumePreview = React.memo(({ data, isUpdating }: { data: any, isUpdating: boolean }) => {
@@ -34,10 +42,10 @@ const ResumePreview = React.memo(({ data, isUpdating }: { data: any, isUpdating:
     <div className="relative h-full w-full">
       {isUpdating && (
         <div className="absolute inset-0 z-20 bg-background/60 backdrop-blur-[2px] flex flex-col items-center justify-center animate-in fade-in duration-300">
-           <div className="flex items-center gap-3 bg-background px-6 py-3 rounded-full shadow-lg border border-border">
-              <Spinner className="h-5 w-5 text-primary" />
-              <span className="text-sm font-semibold">Updating PDF...</span>
-           </div>
+          <div className="flex items-center gap-3 bg-background px-6 py-3 rounded-full shadow-lg border border-border">
+            <Spinner className="h-5 w-5 text-primary" />
+            <span className="text-sm font-semibold">Updating PDF...</span>
+          </div>
         </div>
       )}
       <PDFViewer width="100%" height="100%" showToolbar={false} className="border-none">
@@ -67,7 +75,7 @@ function EditResume() {
   const [resumeLoadingError, setResumeLoadingError] = useState(false)
   const [debouncedData, setDebouncedData] = useState<any>(null)
   const [isUpdatingPreview, setIsUpdatingPreview] = useState(false)
-  
+
   // New state to track download status
   const [isDownloading, setIsDownloading] = useState(false)
 
@@ -77,29 +85,29 @@ function EditResume() {
 
     try {
       setIsDownloading(true)
-      
+
       // 1. Generate the PDF blob using the *current* state (not debounced)
       //    This ensures the download includes even your latest keystroke.
       const blob = await pdf(<ResumeDocument resume={current} />).toBlob()
-      
+
       // 2. Create a download link
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
       // Sanitize filename
-      const filename = current.title 
-        ? current.title.replace(/[^a-z0-9]/gi, '_').toLowerCase() 
+      const filename = current.title
+        ? current.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()
         : 'resume'
       link.download = `${filename}.pdf`
-      
+
       // 3. Trigger click
       document.body.appendChild(link)
       link.click()
-      
+
       // 4. Cleanup
       document.body.removeChild(link)
       URL.revokeObjectURL(url)
-      
+
       toast.success("Resume downloaded successfully")
     } catch (error) {
       console.error("Download failed:", error)
@@ -196,11 +204,27 @@ function EditResume() {
           </div>
 
           <div className="flex items-center gap-3">
-            <button className="hidden sm:flex items-center gap-2 px-4 py-2 text-sm font-semibold text-muted-foreground hover:bg-accent rounded-lg transition-all">
-              <Settings2 className="h-4 w-4" /> Template
-            </button>
-            
-            <button 
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="hidden sm:inline-block">
+                    <Button
+                      type="button"
+                      disabled
+                      className="flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg opacity-60 cursor-not-allowed"
+                    >
+                      <Settings2 className="h-4 w-4" /> Template
+                    </Button>
+                  </span>
+                </TooltipTrigger>
+
+                <TooltipContent side="bottom" align="end">
+                  <p> Template feature is in development More to come</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
+            <Button
               onClick={handleDownload}
               disabled={isDownloading || loading}
               className="flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-lg text-sm font-bold shadow-sm hover:opacity-90 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
@@ -212,18 +236,18 @@ function EditResume() {
                 </>
               ) : (
                 <>
-                  <Download className="h-4 w-4" /> 
+                  <Download className="h-4 w-4" />
                   <span>Export PDF</span>
                 </>
               )}
-            </button>
+            </Button>
           </div>
         </div>
       </nav>
 
       {/* Split Pane Layout */}
       <div className="flex-1 flex overflow-hidden">
-        
+
         {/* LEFT PANEL: EDITOR */}
         <div className="w-full md:w-[55%] lg:w-[60%] h-full overflow-y-auto no-scrollbar bg-background">
           <div className="max-w-[800px] mx-auto p-6 md:p-10 space-y-10">
@@ -240,7 +264,7 @@ function EditResume() {
                 placeholder="Ex: Senior Software Engineer 2024"
               />
             </div>
-            
+
             {/* Sections */}
             <div className="grid gap-8 pb-20">
               {[
@@ -258,7 +282,19 @@ function EditResume() {
                       <span className="flex items-center justify-center w-6 h-6 rounded bg-primary/10 text-primary text-[10px] font-bold">{idx + 1}</span>
                       {section.label}
                     </h3>
-                    <Sparkles className="h-4 w-4 text-muted-foreground/30 group-hover:text-primary transition-colors" />
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="cursor-pointer">
+                            <Sparkles className="h-4 w-4 text-muted-foreground/30 group-hover:text-primary transition-colors" />
+                          </div>
+                        </TooltipTrigger>
+
+                        <TooltipContent>
+                          <p> AI suggestions are in development</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </div>
                   <div>{section.component}</div>
                 </section>
@@ -269,19 +305,19 @@ function EditResume() {
 
         {/* RIGHT PANEL: PREVIEW */}
         <div className="hidden md:block w-[45%] lg:w-[40%] h-full bg-muted/30 border-l border-border relative">
-            <div className="absolute inset-0 p-8 flex items-center justify-center">
-              <div className="h-full w-full max-w-[600px] shadow-2xl rounded-sm overflow-hidden border border-border/50 bg-white">
-                 <ResumePreview data={debouncedData} isUpdating={isUpdatingPreview} />
-              </div>
+          <div className="absolute inset-0 p-8 flex items-center justify-center">
+            <div className="h-full w-full max-w-[600px] shadow-2xl rounded-sm overflow-hidden border border-border/50 bg-white">
+              <ResumePreview data={debouncedData} isUpdating={isUpdatingPreview} />
             </div>
-            
-            {/* Floating Status Badge */}
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur border border-border px-4 py-2 rounded-full shadow-lg flex items-center gap-3 z-30">
-                <div className={`h-2 w-2 rounded-full ${isUpdatingPreview ? "bg-amber-400 animate-pulse" : "bg-emerald-400"}`} />
-                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest font-mono">
-                   {isUpdatingPreview ? "Rendering Preview..." : "Live Preview Active"}
-                </span>
-            </div>
+          </div>
+
+          {/* Floating Status Badge */}
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur border border-border px-4 py-2 rounded-full shadow-lg flex items-center gap-3 z-30">
+            <div className={`h-2 w-2 rounded-full ${isUpdatingPreview ? "bg-amber-400 animate-pulse" : "bg-emerald-400"}`} />
+            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest font-mono">
+              {isUpdatingPreview ? "Rendering Preview..." : "Live Preview Active"}
+            </span>
+          </div>
         </div>
 
       </div>

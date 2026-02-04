@@ -3,8 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "next-themes";
 import { ClerkProvider } from "@clerk/nextjs";
-import Navbar from "@/components/layout/navbar";
 import { Toaster } from "@/components/ui/sonner"
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 
 const geistSans = Geist({
@@ -45,8 +45,7 @@ export default function RootLayout({
           <ThemeProvider attribute="class" defaultTheme="system">
             <div className="min-h-screen flex flex-col">
               <main className="flex-1">
-                <Navbar/>
-                {children}
+                 <TooltipProvider>{children}</TooltipProvider>
               </main>
               <Toaster position="bottom-right" richColors />
             </div>

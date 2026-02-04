@@ -39,14 +39,16 @@ export async function GET() {
                 })
         }
 
-        return NextResponse.json({
+        return NextResponse.json(
+            {
             message: "Fetched All the resumes",
             resumes: userResumes,
             success: true
-        },
+            },
             {
                 status: 201
-            })
+            }
+        )
 
 
 

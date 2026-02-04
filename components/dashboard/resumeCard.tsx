@@ -31,13 +31,15 @@ type ResumeCardProp = {
   title: string
   id: string
   createdAt: string
+  published: boolean
+  slug: string | null
 }
 
 export default function ResumeCard(resume: ResumeCardProp) {
   const router = useRouter()
   const [showDeleteDialog, setShowDeleteDialog] = React.useState(false)
   const [isDeleting, setIsDeleting] = React.useState(false)
-  const { removeResume } = useResumeStore()
+  const { removeResume, changePublish } = useResumeStore()
 
   const handleDelete = async () => {
     try {
@@ -55,6 +57,22 @@ export default function ResumeCard(resume: ResumeCardProp) {
 
   const navigateToEdit = () => {
     router.push(`edit-resume/${resume.id}`)
+  }
+
+
+  const handlePublishChange = (id:string) =>{
+    axios.post(`/api/resumes/${id}/settings`)
+    .then((res)=>{
+      if(res.data.success){
+        toast.success(res.data.message)
+        router.refresh()
+        changePublish(id, !resume.published)
+      }
+    })
+    .catch((err)=>{
+      console.error(err)
+      toast.error("Failed to change publish status")
+    })  
   }
 
   return (
@@ -75,9 +93,8 @@ export default function ResumeCard(resume: ResumeCardProp) {
               <DropdownMenuTrigger asChild>
                 <button
                   className="p-2 rounded-full hover:bg-muted"
-                  // 👇 THIS IS THE FIX
                   onClick={(e) => {
-                    e.stopPropagation() // Prevents the click from reaching the Card
+                    e.stopPropagation() 
                   }}
                 >
                   <MoreVertical className="h-4 w-4" />
@@ -101,7 +118,7 @@ export default function ResumeCard(resume: ResumeCardProp) {
                   <DropdownMenuItem
                     className="text-red-600 focus:text-red-600"
                     onSelect={(e) => {
-                      e.preventDefault() // Prevents menu from closing immediately
+                      e.preventDefault()
                       setShowDeleteDialog(true)
                     }}
                     onClick={(e) => e.stopPropagation()}
@@ -109,6 +126,29 @@ export default function ResumeCard(resume: ResumeCardProp) {
                   >
                     Delete
                   </DropdownMenuItem>
+
+                  <DropdownMenuItem
+                    onClick={(e) => e.stopPropagation()}
+                    onSelect={(e)=>{
+                      handlePublishChange(resume.id)
+                    }}
+                  >
+                    {resume.published ? "Unpublish" : "Publish"}
+                  </DropdownMenuItem>
+
+                  {
+                    resume.published && resume.slug && (
+                      <DropdownMenuItem
+                        onClick={(e) => e.stopPropagation()}
+                        onSelect={(e)=>{
+                          window.open(`/resume/${resume.slug}`, '_blank')
+                        }}
+                      >
+                        View Published Resume
+                      </DropdownMenuItem>
+
+                    )
+                  }
                 </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>
