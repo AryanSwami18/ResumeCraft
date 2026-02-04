@@ -49,6 +49,7 @@ export default function RootLayout({
                  <TooltipProvider>{children}</TooltipProvider>
               </main>
               <Toaster position="bottom-right" richColors />
+              <SpeedInsights />
             </div>
           </ThemeProvider>
         </ClerkProvider>
